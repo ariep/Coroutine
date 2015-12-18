@@ -1,8 +1,9 @@
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE TypeFamilies, EmptyDataDecls, TypeOperators #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ImpredicativeTypes #-}
 
 {-|
 This module allows you to implement coroutines that communicate in a type-safe manner
@@ -36,27 +37,28 @@ where the other writes), just call "connects s1 s2".  If the sessions are not
 compatible, you'll get a reasonably readable compile-time error.
 -}
 
-module Control.Coroutine (
-    module Control.Monad.Indexed,
-    WM(..),
-    Eps,
-    (:?:), (:!:),
-    (:&:), (:|:),
-    (:?*), (:!*),
-    (:++:), (:*),
-    Session(..),
+module Control.Coroutine
+  ( module Control.Monad.Indexed
+  , WM(..)
+  , Eps
+  , (:?:), (:!:)
+  , (:&:), (:|:)
+  , (:?*), (:!*)
+  , (:++:), (:*)
+  , Session(..)
 
-    InSession(..),
-    -- R, W, O, CL, CAT, StarC, StarS, Stop, Go,
+  , InSession(..)
+    -- R, W, O, CL, CAT, StarC, StarS, Stop, Go
     
-    close, get, put, cat, offer, sel1, sel2,
-    Loop(..), loopC, loopS, loop,
-    runSession,
+  , close, get, put, cat, offer, sel1, sel2
+  , Loop(..), loopC, loopS, loop
+  , runSession
     
-    Dual, Connect(..), connects
-) where
+  , Dual, Connect(..), connects
+  ) where
 import Control.Monad.Indexed
 import qualified Prelude as P
+import           Prelude ((.), ($), (<$>), (<*>), Functor, Applicative, Either(..), flip)
 
 -- | WM stands for "wrapped monad"; it wraps any Prelude monad.
 -- This doesn't really belong in this module, but exporting it
@@ -265,7 +267,7 @@ connects :: (Connect s, Dual s ~ c, Dual c ~ s) => Session s Eps a -> Session c 
 connects s c = connect (runSession s) (runSession c)
 
 -- some tests
-
+{-
 add_server n = runSession $ do
     loopS n $ \n -> do
         x <- get
@@ -298,3 +300,4 @@ list_server l = loop (listdata l) listserv >> close
     listdata (x:xs) = Loop (x,xs)
     
     listserv (x,xs) = put x >> return (listdata xs)
+-}

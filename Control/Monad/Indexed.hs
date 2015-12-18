@@ -1,12 +1,12 @@
 {-# OPTIONS_HADDOCK ignore-exports #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RankNTypes #-}
-module Control.Monad.Indexed (
-    module Prelude,
-    IxMonad(..),
-    IxCont(..),
-    mapCont
-) where
+module Control.Monad.Indexed
+  ( IxMonad(..)
+  , IxCont(..)
+  , mapCont
+  ) where
+
 import Prelude hiding (Monad(..))
 
 -- | IxMonad (Indexed Monad) carries type-level state through a
@@ -15,13 +15,13 @@ import Prelude hiding (Monad(..))
 -- "px" and "py" can be thought of as type-level propositions
 -- that hold at the beginning and end of the computation.
 class IxMonad m where
-    return :: a -> m x x a
-    (>>=)  :: m x y a -> (a -> m y z b) -> m x z b
-    (>>)   :: m x y a -> m y z b -> m x z b
-    fail   :: String -> m x y a
+  return :: a -> m x x a
+  (>>=)  :: m x y a -> (a -> m y z b) -> m x z b
+  (>>)   :: m x y a -> m y z b -> m x z b
+  fail   :: String -> m x y a
 
-    m >> n = m >>= const n
-    fail = error
+  m >> n = m >>= const n
+  fail = error
 
 -- | IxCont is a continuation monad that supports changing
 -- of the answer type during the computation.  The result
@@ -35,8 +35,8 @@ mapCont :: (forall a. s x a -> s y a) -> IxCont s x z a -> IxCont s y z a
 mapCont f (IxCont k) = IxCont (f . k)
 
 instance IxMonad (IxCont s) where
-    return x = IxCont $ \k -> k x
-    m >>= g  = IxCont $ \k -> runIxCont m $ \a -> runIxCont (g a) k
+  return x = IxCont $ \k -> k x
+  m >>= g  = IxCont $ \k -> runIxCont m $ \a -> runIxCont (g a) k
 
 {-
 
