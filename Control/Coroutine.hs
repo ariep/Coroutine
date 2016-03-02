@@ -97,6 +97,15 @@ data (:*) s r      ;-- ^ @a :* b@ is the session @a@ zero or more times followed
 -- you generally won't need to use it yourself.
 data (:++:) s1 s2  --  "Concat"
 
+infixr 2 :?:
+infixr 2 :!:
+infixr 1 :&:
+infixr 1 :|:
+infixr 1 :?*
+infixr 1 :!*
+infixr 1 :*
+
+
 -- | InSession s v is a functor type representing a session that results in the value v
 -- being computed by the session.  s should be indexed by one of the session types above,
 -- although you can extended the session type system by adding additional instances

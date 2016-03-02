@@ -126,7 +126,7 @@ newtype instance InSession m (Repeat s) v
 
 -- | By indexing using a data family, we get an untagged representation of
 -- the session; resolving how to link sessions together with "connect" can
--- happen at compile-time.  A similar encoding is possible using GADTs, but
+-- happen at compile-time. A similar encoding is possible using GADTs, but
 -- it requires runtime branching based on the GADT tag.
 --
 -- @IxCont s x y a@ == @forall b. (a -> s y b) -> s x b@; that is, if you
@@ -145,6 +145,11 @@ mkSession = Session . IxCont
 
 unSession :: Session m x y a -> (a -> InSession m y b) -> InSession m x b
 unSession = runIxCont . getSession
+
+-- | runSession converts a session computation into a "connectable"
+-- session.
+runSession :: (P.Monad m) => Session m c Eps a -> InSession m c a
+runSession m = unSession m (Eps . P.return)
 
 mapSession :: (Functor m)
   => (forall a. InSession m s1 a -> InSession m s2 a)
@@ -257,12 +262,6 @@ loop (Done b) _ = mapSession Stop $ return (Right b)
 loop (Loop a) f = mapSession Go $ offer (return (Left a)) $ do
   a' <- cat (f a)
   loop a' f
-
--- | runSession converts a session computation into a "connectable"
--- session.
-runSession :: (P.Monad m) => Session m c Eps a -> InSession m c a
-runSession m = unSession m (Eps . P.return)
-
 
 -- Connection logic follows; it requires the "Dual" type-logic
 -- that connects "reads" to "writes" in the type system.
